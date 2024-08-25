@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forex Trading Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        form {
+            background-color: #f5f5f5;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        input[type="submit"] {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #444444;
+        }
+
+        .chart-container {
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Forex Trading Dashboard</h1>
+    </header>
+    <div class="container">
+        <h2>Registrar Operación</h2>
+        <form id="trade-form">
+            <label for="pair">Par de Divisas:</label>
+            <select id="pair" required>
+                <option value="EUR/USD">EUR/USD</option>
+                <option value="EUR/GBP">EUR/GBP</option>
+                <option value="GBP/USD">GBP/USD</option>
+                <option value="XAU/USD">XAU/USD</option>
+                <option value="BTC/USD">BTC/USD</option>
+            </select>
+            
+            <label for="type">Tipo de Operación:</label>
+            <select id="type" required>
+                <option value="buy">Compra</option>
+                <option value="sell">Venta</option>
+            </select>
+
+            <label for="entry">Precio de Entrada:</label>
+            <input type="number" id="entry" required>
+
+            <label for="exit">Precio de Salida:</label>
+            <input type="number" id="exit" required>
+
+            <label for="amount">Cantidad:</label>
+            <input type="number" id="amount" required>
+
+            <input type="submit" value="Registrar">
+        </form>
+
+        <h2>Gráficos</h2>
+        <div class="chart-container">
+            <canvas id="eurusd-chart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="general-chart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('trade-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const pair = document.getElementById('pair').value;
+            const type = document.getElementById('type').value;
+            const entry = parseFloat(document.getElementById('entry').value);
+            const exit = parseFloat(document.getElementById('exit').value);
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            const profitLoss = type === 'buy' ? (exit - entry) * amount : (entry - exit) * amount;
+
+            // Aquí se puede agregar el registro en una base de datos o mostrarlo en la interfaz
+            console.log(`Par: ${pair}, Tipo: ${type}, P/L: ${profitLoss}`);
+
+            // Actualizar gráficos - Ejemplo para el par EUR/USD
+            if (pair === 'EUR/USD') {
+                addDataToChart(eurusdChart, new Date().toLocaleTimeString(), profitLoss);
+            }
+
+            // Actualizar gráfico general
+            addDataToChart(generalChart, new Date().toLocaleTimeString(), profitLoss);
+        });
+
+        function addDataToChart(chart, label, data) {
+            chart.data.labels.push(label);
+            chart.data.datasets[0].data.push(data);
+            chart.update();
+        }
+
+        const eurusdChart = new Chart(document.getElementById('eurusd-chart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'EUR/USD',
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    data: []
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { beginAtZero: true },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        const generalChart = new Chart(document.getElementById('general-chart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Beneficio/Pérdida General',
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    data: []
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { beginAtZero: true },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
